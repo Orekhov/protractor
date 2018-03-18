@@ -32,7 +32,12 @@ export class Direct extends DriverProvider {
   protected setupDriverEnv(): q.Promise<any> {
     switch (this.config_.capabilities.browserName) {
       case 'chrome':
-        logger.info('Using ChromeDriver directly...');
+        if(this.config_.directConnectDriverAddress) {
+            logger.info(`Using ChromeDriver directly. Connecting to an instance running on ${this.config_.directConnectDriverAddress}`);
+        }
+        else {
+            logger.info('Using ChromeDriver directly...');
+        }
         break;
       case 'firefox':
         logger.info('Using FirefoxDriver directly...');
@@ -85,6 +90,11 @@ export class Direct extends DriverProvider {
         // driver = ChromeDriver.createSession(new Capabilities(this.config_.capabilities),
         // chromeService);
         // TODO(ralphj): fix typings
+
+        if(this.config_.directConnectDriverAddress) {
+          chromeService.address_ = Promise.resolve(this.config_.directConnectDriverAddress);
+        }
+
         driver =
             require('selenium-webdriver/chrome')
                 .Driver.createSession(new Capabilities(this.config_.capabilities), chromeService);
